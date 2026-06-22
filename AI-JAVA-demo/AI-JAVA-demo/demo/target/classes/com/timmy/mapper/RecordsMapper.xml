@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.timmy.mapper.RecordsMapper" >
+  <resultMap id="BaseResultMap" type="com.timmy.entity.Records" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="enroll_id" property="enrollId" jdbcType="BIGINT" />
+    <result column="records_time" property="recordsTime" jdbcType="TIMESTAMP" />
+    <result column="mode" property="mode" jdbcType="INTEGER" />
+    <result column="intOut" property="intout" jdbcType="INTEGER" />
+    <result column="event" property="event" jdbcType="INTEGER" />
+    <result column="device_serial_num" property="deviceSerialNum" jdbcType="VARCHAR" />
+    <result column="temperature" property="temperature" jdbcType="DOUBLE"/>
+      <result column="image" property="image" jdbcType="VARCHAR" />
+  </resultMap>
+ 
+  
+  <sql id="Base_Column_List" >
+    id, enroll_id, records_time, mode, intOut, event, device_serial_num,temperature,image
+  </sql>
+ 
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from records
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectAllRecords" resultMap="BaseResultMap">
+  select * from records
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from records
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insert" parameterType="com.timmy.entity.Records" >
+    insert into records (id, enroll_id, records_time, 
+      mode, intOut, event, 
+      device_serial_num,temperature,image)
+    values (#{id,jdbcType=INTEGER}, #{enrollId,jdbcType=BIGINT}, #{recordsTime,jdbcType=TIMESTAMP}, 
+      #{mode,jdbcType=INTEGER}, #{intout,jdbcType=INTEGER}, #{event,jdbcType=INTEGER}, 
+      #{deviceSerialNum,jdbcType=VARCHAR},#{temperature,jdbcType=DOUBLE},#{image,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.timmy.entity.Records" >
+    insert into records
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="enrollId != null" >
+        enroll_id,
+      </if>
+      <if test="recordsTime != null" >
+        records_time,
+      </if>
+      <if test="mode != null" >
+        mode,
+      </if>
+      <if test="intout != null" >
+        intOut,
+      </if>
+      <if test="event != null" >
+        event,
+      </if>
+      <if test="deviceSerialNum != null" >
+        device_serial_num,
+      </if>
+       <if test="temperature != null" >
+        temperature,
+      </if>
+       <if test="temperature != null" >
+        image,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="enrollId != null" >
+        #{enrollId,jdbcType=INTEGER},
+      </if>
+      <if test="recordsTime != null" >
+        #{recordsTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mode != null" >
+        #{mode,jdbcType=INTEGER},
+      </if>
+      <if test="intout != null" >
+        #{intout,jdbcType=INTEGER},
+      </if>
+      <if test="event != null" >
+        #{event,jdbcType=INTEGER},
+      </if>
+      <if test="deviceSerialNum != null" >
+        #{deviceSerialNum,jdbcType=VARCHAR},
+      </if>
+      <if test="temperature != null" >
+        #{temperature,jdbcType=DOUBLE},
+      </if>
+      <if test="temperature != null" >
+        #{image,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+ 
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.timmy.entity.Records" >
+    update records
+    <set >
+      <if test="enrollId != null" >
+        enroll_id = #{enrollId,jdbcType=INTEGER},
+      </if>
+      <if test="recordsTime != null" >
+        records_time = #{recordsTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mode != null" >
+        mode = #{mode,jdbcType=INTEGER},
+      </if>
+      <if test="intout != null" >
+        intOut = #{intout,jdbcType=INTEGER},
+      </if>
+      <if test="event != null" >
+        event = #{event,jdbcType=INTEGER},
+      </if>
+      <if test="deviceSerialNum != null" >
+        device_serial_num = #{deviceSerialNum,jdbcType=VARCHAR},
+      </if>
+       <if test="temperature != null" >
+        temperature = #{temperature,jdbcType=DOUBLE},
+      </if>
+      <if test="temperature != null" >
+        image = #{image,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.timmy.entity.Records" >
+    update records
+    set enroll_id = #{enrollId,jdbcType=INTEGER},
+      records_time = #{recordsTime,jdbcType=TIMESTAMP},
+      mode = #{mode,jdbcType=INTEGER},
+      intOut = #{intout,jdbcType=INTEGER},
+      event = #{event,jdbcType=INTEGER},
+      device_serial_num = #{deviceSerialNum,jdbcType=VARCHAR}
+      temperature = #{temperature,jdbcType=DOUBLE},
+      image = #{image,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

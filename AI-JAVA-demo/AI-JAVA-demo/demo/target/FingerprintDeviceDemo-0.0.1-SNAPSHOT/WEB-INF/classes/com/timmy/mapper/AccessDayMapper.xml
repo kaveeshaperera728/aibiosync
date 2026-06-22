@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.timmy.mapper.AccessDayMapper" >
+  <resultMap id="BaseResultMap" type="com.timmy.entity.AccessDay" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="serial" property="serial" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="start_time1" property="startTime1" jdbcType="VARCHAR" />
+    <result column="end_time1" property="endTime1" jdbcType="VARCHAR" />
+    <result column="start_time2" property="startTime2" jdbcType="VARCHAR" />
+    <result column="end_time2" property="endTime2" jdbcType="VARCHAR" />
+    <result column="start_time3" property="startTime3" jdbcType="VARCHAR" />
+    <result column="end_time3" property="endTime3" jdbcType="VARCHAR" />
+    <result column="start_time4" property="startTime4" jdbcType="VARCHAR" />
+    <result column="end_time4" property="endTime4" jdbcType="VARCHAR" />
+    <result column="start_time5" property="startTime5" jdbcType="VARCHAR" />
+    <result column="end_time5" property="endTime5" jdbcType="VARCHAR" />
+  </resultMap>
+  
+ 
+  <sql id="Base_Column_List" >
+    id, serial, name, start_time1, end_time1, start_time2, end_time2, start_time3, end_time3, 
+    start_time4, end_time4, start_time5, end_time5
+  </sql>
+ 
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from access_day
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from access_day
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <select id="selectAll" resultMap="BaseResultMap">
+  
+  select * from access_day
+  </select>
+  
+  <insert id="insert" parameterType="com.timmy.entity.AccessDay" >
+    insert into access_day (id, serial, name, 
+      start_time1, end_time1, start_time2, 
+      end_time2, start_time3, end_time3, 
+      start_time4, end_time4, start_time5, 
+      end_time5)
+    values (#{id,jdbcType=INTEGER}, #{serial,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{startTime1,jdbcType=VARCHAR}, #{endTime1,jdbcType=VARCHAR}, #{startTime2,jdbcType=VARCHAR}, 
+      #{endTime2,jdbcType=VARCHAR}, #{startTime3,jdbcType=VARCHAR}, #{endTime3,jdbcType=VARCHAR}, 
+      #{startTime4,jdbcType=VARCHAR}, #{endTime4,jdbcType=VARCHAR}, #{startTime5,jdbcType=VARCHAR}, 
+      #{endTime5,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.timmy.entity.AccessDay" >
+    insert into access_day
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="serial != null" >
+        serial,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="startTime1 != null" >
+        start_time1,
+      </if>
+      <if test="endTime1 != null" >
+        end_time1,
+      </if>
+      <if test="startTime2 != null" >
+        start_time2,
+      </if>
+      <if test="endTime2 != null" >
+        end_time2,
+      </if>
+      <if test="startTime3 != null" >
+        start_time3,
+      </if>
+      <if test="endTime3 != null" >
+        end_time3,
+      </if>
+      <if test="startTime4 != null" >
+        start_time4,
+      </if>
+      <if test="endTime4 != null" >
+        end_time4,
+      </if>
+      <if test="startTime5 != null" >
+        start_time5,
+      </if>
+      <if test="endTime5 != null" >
+        end_time5,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="serial != null" >
+        #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime1 != null" >
+        #{startTime1,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime1 != null" >
+        #{endTime1,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime2 != null" >
+        #{startTime2,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime2 != null" >
+        #{endTime2,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime3 != null" >
+        #{startTime3,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime3 != null" >
+        #{endTime3,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime4 != null" >
+        #{startTime4,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime4 != null" >
+        #{endTime4,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime5 != null" >
+        #{startTime5,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime5 != null" >
+        #{endTime5,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.timmy.entity.AccessDay" >
+    update access_day
+    <set >
+      <if test="serial != null" >
+        serial = #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime1 != null" >
+        start_time1 = #{startTime1,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime1 != null" >
+        end_time1 = #{endTime1,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime2 != null" >
+        start_time2 = #{startTime2,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime2 != null" >
+        end_time2 = #{endTime2,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime3 != null" >
+        start_time3 = #{startTime3,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime3 != null" >
+        end_time3 = #{endTime3,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime4 != null" >
+        start_time4 = #{startTime4,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime4 != null" >
+        end_time4 = #{endTime4,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime5 != null" >
+        start_time5 = #{startTime5,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime5 != null" >
+        end_time5 = #{endTime5,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.timmy.entity.AccessDay" >
+    update access_day
+    set serial = #{serial,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      start_time1 = #{startTime1,jdbcType=VARCHAR},
+      end_time1 = #{endTime1,jdbcType=VARCHAR},
+      start_time2 = #{startTime2,jdbcType=VARCHAR},
+      end_time2 = #{endTime2,jdbcType=VARCHAR},
+      start_time3 = #{startTime3,jdbcType=VARCHAR},
+      end_time3 = #{endTime3,jdbcType=VARCHAR},
+      start_time4 = #{startTime4,jdbcType=VARCHAR},
+      end_time4 = #{endTime4,jdbcType=VARCHAR},
+      start_time5 = #{startTime5,jdbcType=VARCHAR},
+      end_time5 = #{endTime5,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

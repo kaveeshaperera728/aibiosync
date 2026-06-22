@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.timmy.mapper.EnrollInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.timmy.entity.EnrollInfo" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="enroll_id" property="enrollId" jdbcType="BIGINT" />
+    <result column="backupnum" property="backupnum" jdbcType="INTEGER" />
+    <result column="imagepath" property="imagePath" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.timmy.entity.EnrollInfo" extends="BaseResultMap" >
+    <result column="signatures" property="signatures" jdbcType="LONGVARCHAR" />
+  </resultMap>
+ 
+  <sql id="Base_Column_List" >
+    id, enroll_id, backupnum
+  </sql>
+  <sql id="Blob_Column_List" >
+    signatures
+  </sql>
+
+    <insert id="insertEnrollInfo" parameterType="com.timmy.entity.EnrollInfo" >
+    insert into enrollinfo (id, enroll_id, backupnum, imagepath,
+      signatures)
+    values (#{id,jdbcType=INTEGER}, #{enrollId,jdbcType=BIGINT}, #{backupnum,jdbcType=INTEGER}, #{imagePath,jdbcType=VARCHAR}, 
+      #{signatures,jdbcType=LONGVARCHAR})
+  </insert>
+   
+   
+  <select id="selectByBackupnum" resultMap="ResultMapWithBLOBs">
+  select id,enroll_id,backupnum,imagepath,signatures from enrollinfo where enroll_id=#{enrollId,jdbcType=BIGINT} and backupnum=#{backupnum,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectAll" resultMap="ResultMapWithBLOBs">
+  select * from enrollinfo
+  </select>
+ 
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from enrollinfo
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByEnrollId" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long">
+    
+ select id,enroll_id,backupnum,imagepath,signatures from enrollinfo where enroll_id=#{enrollId,jdbcType=BIGINT}
+ 
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from enrollinfo
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <delete id="deleteByEnrollId" parameterType="java.lang.Long">
+   delete from enrollinfo where enroll_id=#{enrollId,jdbcType=BIGINT}
+  </delete>
+ 
+  <insert id="insert" parameterType="com.timmy.entity.EnrollInfo" >
+    insert into enrollinfo (enroll_id, backupnum, imagepath,
+      signatures)
+    values (#{enrollId,jdbcType=BIGINT}, #{backupnum,jdbcType=INTEGER}, #{imagePath,jdbcType=VARCHAR},
+      #{signatures,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.timmy.entity.EnrollInfo" >
+    insert into enrollinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="enrollId != null" >
+        enroll_id,
+      </if>
+      <if test="backupnum != null" >
+        backupnum,
+      </if>
+      <if test="imagePath != null" >
+        imagepath,
+      </if>
+      <if test="signatures != null" >
+        signatures
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="enrollId != null" >
+        #{enrollId,jdbcType=INTEGER},
+      </if>
+      <if test="backupnum != null" >
+        #{backupnum,jdbcType=INTEGER},
+      </if>
+        <if test="imagePath != null" >
+       #{imagePath,jdbcType=VARCHAR},
+      </if>
+      <if test="signatures != null" >
+        #{signatures,jdbcType=LONGVARCHAR}
+      </if>
+    </trim>
+  </insert>
+ 
+  <update id="updateByEnrollIdAndBackupNum">
+  update enrollinfo set signatures = #{signatures,jdbcType=LONGVARCHAR} where enroll_id=#{enrollId,jdbcType=INTEGER} and backupnum=#{backupnum,jdbcType=INTEGER} 
+  
+  </update>
+ 
+  <update id="updateByPrimaryKeySelective" parameterType="com.timmy.entity.EnrollInfo" >
+    update enrollinfo
+    <set >
+      <if test="enrollId != null" >
+        enroll_id = #{enrollId,jdbcType=INTEGER},
+      </if>
+      <if test="backupnum != null" >
+        backupnum = #{backupnum,jdbcType=INTEGER},
+      </if>
+       <if test="backupnum != null" >
+        imagepath = #{imagePath,jdbcType=VARCHAR},
+      </if>
+      <if test="signatures != null" >
+        signatures = #{signatures,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.timmy.entity.EnrollInfo" >
+    update enrollinfo
+    set enroll_id = #{enrollId,jdbcType=INTEGER},
+      backupnum = #{backupnum,jdbcType=INTEGER},
+       imagepath = #{imagePath,jdbcType=VARCHAR},
+      signatures = #{signatures,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.timmy.entity.EnrollInfo" >
+    update enrollinfo
+    set enroll_id = #{enrollId,jdbcType=INTEGER},
+      backupnum = #{backupnum,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

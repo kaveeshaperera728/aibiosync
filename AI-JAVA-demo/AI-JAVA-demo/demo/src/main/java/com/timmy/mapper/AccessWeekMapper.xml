@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.timmy.mapper.AccessWeekMapper" >
+  <resultMap id="BaseResultMap" type="com.timmy.entity.AccessWeek" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="serial" property="serial" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="monday" property="monday" jdbcType="INTEGER" />
+    <result column="tuesday" property="tuesday" jdbcType="INTEGER" />
+    <result column="wednesday" property="wednesday" jdbcType="INTEGER" />
+    <result column="thursday" property="thursday" jdbcType="INTEGER" />
+    <result column="friday" property="friday" jdbcType="INTEGER" />
+    <result column="saturday" property="saturday" jdbcType="INTEGER" />
+    <result column="sunday" property="sunday" jdbcType="INTEGER" />
+  </resultMap>
+ 
+ 
+  <sql id="Base_Column_List" >
+    id, serial, name, monday, tuesday, wednesday, thursday, friday, saturday, sunday
+  </sql>
+ 
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from access_week
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectAllAccessWeek" resultMap="BaseResultMap">
+  select * from access_week
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from access_week
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+ 
+  <insert id="insert" parameterType="com.timmy.entity.AccessWeek" >
+    insert into access_week (id, serial, name, 
+      monday, tuesday, wednesday, 
+      thursday, friday, saturday, 
+      sunday)
+    values (#{id,jdbcType=INTEGER}, #{serial,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{monday,jdbcType=INTEGER}, #{tuesday,jdbcType=INTEGER}, #{wednesday,jdbcType=INTEGER}, 
+      #{thursday,jdbcType=INTEGER}, #{friday,jdbcType=INTEGER}, #{saturday,jdbcType=INTEGER}, 
+      #{sunday,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.timmy.entity.AccessWeek" >
+    insert into access_week
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="serial != null" >
+        serial,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="monday != null" >
+        monday,
+      </if>
+      <if test="tuesday != null" >
+        tuesday,
+      </if>
+      <if test="wednesday != null" >
+        wednesday,
+      </if>
+      <if test="thursday != null" >
+        thursday,
+      </if>
+      <if test="friday != null" >
+        friday,
+      </if>
+      <if test="saturday != null" >
+        saturday,
+      </if>
+      <if test="sunday != null" >
+        sunday,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="serial != null" >
+        #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="monday != null" >
+        #{monday,jdbcType=INTEGER},
+      </if>
+      <if test="tuesday != null" >
+        #{tuesday,jdbcType=INTEGER},
+      </if>
+      <if test="wednesday != null" >
+        #{wednesday,jdbcType=INTEGER},
+      </if>
+      <if test="thursday != null" >
+        #{thursday,jdbcType=INTEGER},
+      </if>
+      <if test="friday != null" >
+        #{friday,jdbcType=INTEGER},
+      </if>
+      <if test="saturday != null" >
+        #{saturday,jdbcType=INTEGER},
+      </if>
+      <if test="sunday != null" >
+        #{sunday,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  
+ 
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.timmy.entity.AccessWeek" >
+    update access_week
+    <set >
+      <if test="serial != null" >
+        serial = #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="monday != null" >
+        monday = #{monday,jdbcType=INTEGER},
+      </if>
+      <if test="tuesday != null" >
+        tuesday = #{tuesday,jdbcType=INTEGER},
+      </if>
+      <if test="wednesday != null" >
+        wednesday = #{wednesday,jdbcType=INTEGER},
+      </if>
+      <if test="thursday != null" >
+        thursday = #{thursday,jdbcType=INTEGER},
+      </if>
+      <if test="friday != null" >
+        friday = #{friday,jdbcType=INTEGER},
+      </if>
+      <if test="saturday != null" >
+        saturday = #{saturday,jdbcType=INTEGER},
+      </if>
+      <if test="sunday != null" >
+        sunday = #{sunday,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.timmy.entity.AccessWeek" >
+    update access_week
+    set serial = #{serial,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      monday = #{monday,jdbcType=INTEGER},
+      tuesday = #{tuesday,jdbcType=INTEGER},
+      wednesday = #{wednesday,jdbcType=INTEGER},
+      thursday = #{thursday,jdbcType=INTEGER},
+      friday = #{friday,jdbcType=INTEGER},
+      saturday = #{saturday,jdbcType=INTEGER},
+      sunday = #{sunday,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

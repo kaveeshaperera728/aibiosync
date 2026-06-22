@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.timmy.mapper.MachineCommandMapper" >
+  <resultMap id="BaseResultMap" type="com.timmy.entity.MachineCommand" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="serial" property="serial" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+     <result column="send_status" property="sendStatus" jdbcType="INTEGER" />
+      <result column="err_count" property="errCount" jdbcType="INTEGER" />
+    <result column="run_time" property="runTime" jdbcType="TIMESTAMP" />
+    <result column="gmt_crate" property="gmtCrate" jdbcType="TIMESTAMP" />
+    <result column="gmt_modified" property="gmtModified" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id,serial, name, content, status,send_status,err_count, run_time, gmt_crate, gmt_modified
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from machine_command
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="findPendingCommand" resultMap="BaseResultMap">
+   select
+    <include refid="Base_Column_List" />
+    from machine_command
+    where status=0  and send_status=#{sendStatus}  and serial=#{serial} and err_count!=3
+  </select>
+  
+  <update id="updateCommandStatus" >
+  update machine_command set status=#{status},send_status=#{sendStatus},run_time=#{runTime} where id=#{id}
+  </update>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from machine_command
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.timmy.entity.MachineCommand" >
+    insert into machine_command (id,serial, name, content, 
+      status,send_status,err_count, run_time, gmt_crate, 
+      gmt_modified)
+    values (#{id,jdbcType=INTEGER},#{serial}, #{name,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER},#{sendStatus,jdbcType=INTEGER},#{errCount},#{runTime,jdbcType=TIMESTAMP}, #{gmtCrate,jdbcType=TIMESTAMP}, 
+      #{gmtModified,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.timmy.entity.MachineCommand" >
+    insert into machine_command
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+       <if test="name != null" >
+        serial,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+       <if test="sendStatus != null" >
+        send_status,
+      </if>
+      <if test="errCount != null" >
+        err_count,
+      </if>
+      <if test="runTime != null" >
+        run_time,
+      </if>
+      <if test="gmtCrate != null" >
+        gmt_crate,
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+       <if test="name != null" >
+        #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="sendStatus != null" >
+        #{sendStatus,jdbcType=INTEGER},
+      </if>
+      <if test="errCount != null" >
+        #{errCount,jdbcType=INTEGER},
+      </if>      
+      <if test="runTime != null" >
+        #{runTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtCrate != null" >
+        #{gmtCrate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.timmy.entity.MachineCommand" >
+    update machine_command
+    <set >
+      <if test="name != null" >
+        serial = #{serial,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="sendStatus != null" >
+        send_status = #{sendStatus,jdbcType=INTEGER},
+      </if>
+       <if test="errCount != null" >
+        err_count = #{errCount,jdbcType=INTEGER},
+      </if>
+      <if test="runTime != null" >
+        run_time = #{runTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtCrate != null" >
+        gmt_crate = #{gmtCrate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="gmtModified != null" >
+        gmt_modified = #{gmtModified,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.timmy.entity.MachineCommand" >
+    update machine_command
+    set
+      serial = #{serial,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      send_status = #{sendStatus,jdbcType=INTEGER},
+       err_count = #{errCount,jdbcType=INTEGER},
+      run_time = #{runTime,jdbcType=TIMESTAMP},
+      gmt_crate = #{gmtCrate,jdbcType=TIMESTAMP},
+      gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
