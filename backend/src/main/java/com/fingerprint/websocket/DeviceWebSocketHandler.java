@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+
 @Component
 public class DeviceWebSocketHandler extends TextWebSocketHandler {
 
@@ -40,6 +43,9 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
     
     // Store active connections by device serial number or IP for reference
     private final Map<String, WebSocketSession> activeSessions = new HashMap<>();
+    
+    // Store recent raw JSON payloads for debugging via API/Postman
+    private final ConcurrentLinkedQueue<String> recentPayloads = new ConcurrentLinkedQueue<>();
 
     public DeviceWebSocketHandler(DeviceCommandRepository deviceCommandRepository, 
                                   DeviceRepository deviceRepository,
@@ -61,7 +67,12 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        logger.debug("Received from device: {}", payload);
+        logger.info("RAW JSON RECEIVED FROM DEVICE: {}", payload);
+        
+        recentPayloads.add(payload);
+        if (recentPayloads.size() > 50) {
+            recentPayloads.poll(); // Keep only the last 50 payloads
+        }
 
         try {
             JsonNode msgNode = objectMapper.readTree(payload);
@@ -471,5 +482,9 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         logger.info("WebSocket connection closed from {}, status: {}", session.getRemoteAddress(), status);
         activeSessions.entrySet().removeIf(entry -> entry.getValue().equals(session));
+    }
+    
+    public List<String> getRecentPayloads() {
+        return recentPayloads.stream().collect(Collectors.toList());
     }
 }

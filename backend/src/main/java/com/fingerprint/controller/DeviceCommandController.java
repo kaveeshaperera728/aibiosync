@@ -12,8 +12,11 @@ public class DeviceCommandController {
 
     private final DeviceCommandService deviceCommandService;
 
-    public DeviceCommandController(DeviceCommandService deviceCommandService) {
+    private final com.fingerprint.websocket.DeviceWebSocketHandler deviceWebSocketHandler;
+
+    public DeviceCommandController(DeviceCommandService deviceCommandService, com.fingerprint.websocket.DeviceWebSocketHandler deviceWebSocketHandler) {
         this.deviceCommandService = deviceCommandService;
+        this.deviceWebSocketHandler = deviceWebSocketHandler;
     }
 
     @PostMapping("/sync-users")
@@ -21,5 +24,10 @@ public class DeviceCommandController {
     public ResponseEntity<?> syncUsers() {
         deviceCommandService.queueGetUserListAllDevices();
         return ResponseEntity.ok().body("{\"message\": \"User sync command queued for all active devices.\"}");
+    }
+    
+    @GetMapping("/logs")
+    public ResponseEntity<?> getDeviceLogs() {
+        return ResponseEntity.ok(deviceWebSocketHandler.getRecentPayloads());
     }
 }
