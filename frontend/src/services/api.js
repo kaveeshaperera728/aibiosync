@@ -23,6 +23,7 @@ export const getEmployees = () => api.get('/employees');
 
 // Attendance APIs
 export const getAttendanceLogs = () => api.get('/attendance');
+export const getDailyAttendance = (date) => api.get(`/attendance/daily${date ? `?date=${date}` : ''}`);
 export const getMonthlyReport = (year, month) => api.get(`/reports/monthly?year=${year}&month=${month}`);
 
 // Command APIs

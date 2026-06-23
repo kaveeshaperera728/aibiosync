@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fingerprint.websocket.DeviceWebSocketHandler;
+
 @Service
 public class DeviceService {
 
@@ -24,16 +26,19 @@ public class DeviceService {
     private final EmployeeRepository employeeRepository;
     private final BiometricTemplateRepository biometricTemplateRepository;
     private final DeviceCommandRepository deviceCommandRepository;
+    private final DeviceWebSocketHandler deviceWebSocketHandler;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public DeviceService(DeviceRepository deviceRepository, 
+    public DeviceService(DeviceRepository deviceRepository,
                          EmployeeRepository employeeRepository,
                          BiometricTemplateRepository biometricTemplateRepository,
-                         DeviceCommandRepository deviceCommandRepository) {
+                         DeviceCommandRepository deviceCommandRepository,
+                         DeviceWebSocketHandler deviceWebSocketHandler) {
         this.deviceRepository = deviceRepository;
         this.employeeRepository = employeeRepository;
         this.biometricTemplateRepository = biometricTemplateRepository;
         this.deviceCommandRepository = deviceCommandRepository;
+        this.deviceWebSocketHandler = deviceWebSocketHandler;
     }
 
     public List<DeviceDto> getAllDevices() {
@@ -128,12 +133,14 @@ public class DeviceService {
                         queueSetUserInfoCommand(device, emp, template.getBackupNum(), template.getTemplateData());
                     }
                 }
-                
+
                 // Optimistically link them
                 emp.getRegisteredDevices().add(device);
                 employeeRepository.save(emp);
             }
         }
+        // Immediately push all queued commands to the device via WebSocket
+        deviceWebSocketHandler.triggerCommandDispatch(device.getSerialNumber());
     }
 
     private void queueSetUserInfoCommand(Device device, Employee emp, int backupNum, String record) {

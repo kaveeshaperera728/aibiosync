@@ -1,11 +1,12 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, Fingerprint, History, Settings, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Fingerprint, History, Settings, FileText, CalendarDays } from 'lucide-react';
 
 export default function Sidebar() {
   const monitorItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Live Events', path: '/attendance', icon: History, badge: '12' },
+    { name: 'Live Events', path: '/attendance', icon: History },
+    { name: 'Attendance', path: '/daily-attendance', icon: CalendarDays },
     { name: 'Reports', path: '/reports', icon: FileText },
   ];
 

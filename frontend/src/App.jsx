@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Devices from './pages/Devices';
 import Employees from './pages/Employees';
 import Attendance from './pages/Attendance';
+import DailyAttendance from './pages/DailyAttendance';
 import Reports from './pages/Reports';
 
 // Placeholder pages for later implementation
@@ -23,6 +24,7 @@ function App() {
           <Route path="devices" element={<Devices />} />
           <Route path="employees" element={<Employees />} />
           <Route path="attendance" element={<Attendance />} />
+          <Route path="daily-attendance" element={<DailyAttendance />} />
           <Route path="reports" element={<Reports />} />
           <Route path="settings" element={<PlaceholderPage title="System Settings" />} />
         </Route>
