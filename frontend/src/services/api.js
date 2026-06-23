@@ -25,9 +25,11 @@ export const getEmployees = () => api.get('/employees');
 export const getAttendanceLogs = () => api.get('/attendance');
 export const getDailyAttendance = (date) => api.get(`/attendance/daily${date ? `?date=${date}` : ''}`);
 export const getMonthlyReport = (year, month) => api.get(`/reports/monthly?year=${year}&month=${month}`);
+export const getFlexibleReport = (params) => api.get('/reports/flexible', { params });
 
 // Command APIs
 export const syncUsersFromDevice = () => api.post('/commands/sync-users');
+export const syncDeviceTime = (deviceId) => api.post(`/commands/${deviceId}/sync-time`);
 
 // Dashboard APIs
 export const getDashboardStats = () => api.get('/dashboard/stats');

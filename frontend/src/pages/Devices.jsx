@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Fingerprint, Plus, MoreVertical, Server, Trash2, Edit2, RefreshCw, Users, X, Send } from 'lucide-react';
-import { getDevices, addDevice, deleteDevice, getMissingUsers, provisionUsers } from '../services/api';
+import { Fingerprint, Plus, MoreVertical, Server, Trash2, Edit2, RefreshCw, Users, X, Send, Clock, CheckCheck } from 'lucide-react';
+import { getDevices, addDevice, deleteDevice, getMissingUsers, provisionUsers, syncDeviceTime } from '../services/api';
 import axios from 'axios';
 
 export default function Devices() {
@@ -100,6 +100,21 @@ export default function Devices() {
     }
   };
 
+  const [syncingTime, setSyncingTime] = useState(null);
+
+  const handleSyncTime = async (dev) => {
+    try {
+      setSyncingTime(dev.id);
+      await syncDeviceTime(dev.id);
+      alert(`Time sync command sent to ${dev.name}. The device clock will update shortly.`);
+    } catch (e) {
+      console.error('Failed to sync time', e);
+      alert('Failed to send time sync. Is the device online?');
+    } finally {
+      setSyncingTime(null);
+    }
+  };
+
   const handleProvision = async () => {
     if (selectedUserIds.size === 0) return;
     try {
@@ -108,7 +123,7 @@ export default function Devices() {
       setShowUsersModal(false);
       alert(`Provisioning ${selectedUserIds.size} users to device. They will be pushed momentarily.`);
     } catch (e) {
-      console.error("Failed to provision users", e);
+      console.error('Failed to provision users', e);
     } finally {
       setProvisioning(false);
     }
@@ -210,6 +225,14 @@ export default function Devices() {
                   </td>
                   <td className="py-4 px-5">
                     <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => handleSyncTime(dev)}
+                        className="px-2.5 py-1.5 flex items-center bg-surface-2 border border-border rounded-md text-[12px] font-medium text-text-primary hover:border-amber hover:text-amber transition-colors"
+                        title="Sync Device Clock"
+                      >
+                        <Clock className={`w-3.5 h-3.5 mr-1.5 ${syncingTime === dev.id ? 'animate-spin' : ''}`} />
+                        Sync Time
+                      </button>
                       <button onClick={() => openUsersModal(dev)} className="px-2.5 py-1.5 flex items-center bg-surface-2 border border-border rounded-md text-[12px] font-medium text-text-primary hover:border-teal hover:text-teal transition-colors" title="Manage Users">
                         <Users className="w-3.5 h-3.5 mr-1.5" />
                         Users
@@ -321,20 +344,32 @@ export default function Devices() {
             </div>
 
             <div className="p-5 border-t border-border-soft flex justify-between items-center shrink-0 bg-surface">
-              <div className="text-[13px] text-text-dim">
-                <span className="font-medium text-text-primary">{selectedUserIds.size}</span> users selected
+              <div className="flex items-center gap-4">
+                <div className="text-[13px] text-text-dim">
+                  <span className="font-medium text-text-primary">{selectedUserIds.size}</span> of{' '}
+                  <span className="font-medium text-text-primary">{missingUsers.length}</span> selected
+                </div>
+                {missingUsers.length > 0 && selectedUserIds.size < missingUsers.length && (
+                  <button
+                    onClick={selectAllMissing}
+                    className="flex items-center px-3 py-1.5 rounded-lg text-[12px] font-medium border border-teal/40 text-teal hover:bg-teal/10 transition-colors"
+                  >
+                    <CheckCheck className="w-3.5 h-3.5 mr-1.5" />
+                    Select All {missingUsers.length}
+                  </button>
+                )}
               </div>
               <div className="flex space-x-3">
                 <button onClick={() => setShowUsersModal(false)} className="px-4 py-2 rounded-lg text-[13px] font-medium text-text-primary hover:bg-surface-2 transition-colors border border-transparent">
                   Cancel
                 </button>
-                <button 
-                  onClick={handleProvision} 
+                <button
+                  onClick={handleProvision}
                   disabled={selectedUserIds.size === 0 || provisioning}
                   className="flex items-center px-4 py-2 rounded-lg text-[13px] font-semibold bg-teal text-[#0c1714] hover:bg-[#2ebfae] transition-colors shadow-sm disabled:opacity-50 disabled:hover:bg-teal"
                 >
                   <Send className={`w-4 h-4 mr-2 ${provisioning ? 'animate-pulse' : ''}`} />
-                  {provisioning ? 'Provisioning...' : 'Proceed & Sync'}
+                  {provisioning ? 'Syncing...' : `Sync ${selectedUserIds.size > 0 ? selectedUserIds.size : ''} Users`}
                 </button>
               </div>
             </div>

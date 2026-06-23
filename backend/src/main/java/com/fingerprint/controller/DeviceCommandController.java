@@ -1,9 +1,13 @@
 package com.fingerprint.controller;
 
 import com.fingerprint.service.DeviceCommandService;
+import com.fingerprint.websocket.DeviceWebSocketHandler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/commands")
@@ -11,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 public class DeviceCommandController {
 
     private final DeviceCommandService deviceCommandService;
+    private final DeviceWebSocketHandler deviceWebSocketHandler;
 
-    private final com.fingerprint.websocket.DeviceWebSocketHandler deviceWebSocketHandler;
-
-    public DeviceCommandController(DeviceCommandService deviceCommandService, com.fingerprint.websocket.DeviceWebSocketHandler deviceWebSocketHandler) {
+    public DeviceCommandController(DeviceCommandService deviceCommandService,
+                                   DeviceWebSocketHandler deviceWebSocketHandler) {
         this.deviceCommandService = deviceCommandService;
         this.deviceWebSocketHandler = deviceWebSocketHandler;
     }
@@ -25,7 +29,14 @@ public class DeviceCommandController {
         deviceCommandService.queueGetUserListAllDevices();
         return ResponseEntity.ok().body("{\"message\": \"User sync command queued for all active devices.\"}");
     }
-    
+
+    @PostMapping("/{deviceId}/sync-time")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('SUPER_ADMIN')")
+    public ResponseEntity<?> syncTime(@PathVariable Long deviceId) {
+        deviceCommandService.queueSyncTimeCommand(deviceId);
+        return ResponseEntity.ok(Map.of("message", "Time sync command sent to device."));
+    }
+
     @GetMapping("/logs")
     public ResponseEntity<?> getDeviceLogs() {
         return ResponseEntity.ok(deviceWebSocketHandler.getRecentPayloads());

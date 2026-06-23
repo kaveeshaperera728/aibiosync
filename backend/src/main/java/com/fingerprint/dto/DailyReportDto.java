@@ -8,6 +8,8 @@ public class DailyReportDto {
     private Long employeeId;
     private String employeeName;
     private String employeeNumber;
+    private String department;
+    private String deviceName;
     private String firstCheckIn;
     private String lastCheckOut;
     private String status; // Present, Absent, Late
