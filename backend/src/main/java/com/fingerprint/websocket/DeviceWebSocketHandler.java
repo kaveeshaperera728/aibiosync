@@ -291,6 +291,19 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                                         cmdObj.setCommandPayload(commandPayload.toString());
                                         cmdObj.setStatus("PENDING");
                                         deviceCommandRepository.save(cmdObj);
+                                        
+                                        // CRITICAL: Request backupnum=50 explicitly to force the device to return the user's name
+                                        ObjectNode nameCommandPayload = objectMapper.createObjectNode();
+                                        nameCommandPayload.put("cmd", "getuserinfo");
+                                        nameCommandPayload.put("enrollid", Integer.parseInt(userEnrollNumber));
+                                        nameCommandPayload.put("backupnum", 50);
+                                        
+                                        DeviceCommand nameCmdObj = new DeviceCommand();
+                                        nameCmdObj.setDevice(device);
+                                        nameCmdObj.setCommandType("getuserinfo");
+                                        nameCmdObj.setCommandPayload(nameCommandPayload.toString());
+                                        nameCmdObj.setStatus("PENDING");
+                                        deviceCommandRepository.save(nameCmdObj);
                                     }
                                 }
                             }
@@ -377,8 +390,27 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                         List<DeviceCommand> cmds = deviceCommandRepository.findByDeviceSerialNumberAndStatus(effectiveSn, "SENT");
                         for (DeviceCommand c : cmds) {
                             if ("getuserinfo".equals(c.getCommandType())) {
-                                c.setStatus("SUCCESS");
-                                deviceCommandRepository.save(c);
+                                try {
+                                    JsonNode payloadNode = objectMapper.readTree(c.getCommandPayload());
+                                    // Identify the exact command that just finished
+                                    if (msgNode.has("enrollid") && msgNode.has("backupnum")) {
+                                        String responseEnrollId = msgNode.get("enrollid").asText();
+                                        int responseBackupNum = msgNode.get("backupnum").asInt();
+                                        
+                                        if (payloadNode.has("enrollid") && payloadNode.get("enrollid").asText().equals(responseEnrollId) &&
+                                            payloadNode.has("backupnum") && payloadNode.get("backupnum").asInt() == responseBackupNum) {
+                                            c.setStatus("SUCCESS");
+                                            deviceCommandRepository.save(c);
+                                            break; // Only mark the specific command as success to maintain the 5-command throttle
+                                        }
+                                    } else {
+                                        c.setStatus("SUCCESS");
+                                        deviceCommandRepository.save(c);
+                                        break;
+                                    }
+                                } catch (Exception e) {
+                                    logger.error("Error verifying sent command payload", e);
+                                }
                             }
                         }
                     }
