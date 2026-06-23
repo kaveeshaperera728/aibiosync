@@ -285,37 +285,50 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                     if (effectiveSn != null) {
                         // Queue getuserinfo for each user found in this package
                         if (msgNode.has("record") && msgNode.get("record").isArray()) {
+                            // Track which users we've already requested backupnum=50 for during this chunk
+                            java.util.Set<String> requestedNameUsers = new java.util.HashSet<>();
+                            
                             for (JsonNode record : msgNode.get("record")) {
-                                String userEnrollNumber = record.has("enrollid") ? record.get("enrollid").asText() : "";
-                                int backupnum = record.has("backupnum") ? record.get("backupnum").asInt() : 0;
-                                if (!userEnrollNumber.isEmpty()) {
-                                    Device device = deviceRepository.findBySerialNumber(effectiveSn).orElse(null);
-                                    if (device != null) {
-                                        ObjectNode commandPayload = objectMapper.createObjectNode();
-                                        commandPayload.put("cmd", "getuserinfo");
-                                        commandPayload.put("enrollid", Integer.parseInt(userEnrollNumber));
-                                        commandPayload.put("backupnum", backupnum);
-                                        
-                                        DeviceCommand cmdObj = new DeviceCommand();
-                                        cmdObj.setDevice(device);
-                                        cmdObj.setCommandType("getuserinfo");
-                                        cmdObj.setCommandPayload(commandPayload.toString());
-                                        cmdObj.setStatus("PENDING");
-                                        deviceCommandRepository.save(cmdObj);
-                                        
-                                        // CRITICAL: Request backupnum=50 explicitly to force the device to return the user's name
-                                        ObjectNode nameCommandPayload = objectMapper.createObjectNode();
-                                        nameCommandPayload.put("cmd", "getuserinfo");
-                                        nameCommandPayload.put("enrollid", Integer.parseInt(userEnrollNumber));
-                                        nameCommandPayload.put("backupnum", 50);
-                                        
-                                        DeviceCommand nameCmdObj = new DeviceCommand();
-                                        nameCmdObj.setDevice(device);
-                                        nameCmdObj.setCommandType("getuserinfo");
-                                        nameCmdObj.setCommandPayload(nameCommandPayload.toString());
-                                        nameCmdObj.setStatus("PENDING");
-                                        deviceCommandRepository.save(nameCmdObj);
+                                try {
+                                    String userEnrollNumber = record.has("enrollid") ? record.get("enrollid").asText() : "";
+                                    int backupnum = record.has("backupnum") ? record.get("backupnum").asInt() : 0;
+                                    
+                                    if (!userEnrollNumber.isEmpty()) {
+                                        Device device = deviceRepository.findBySerialNumber(effectiveSn).orElse(null);
+                                        if (device != null) {
+                                            ObjectNode commandPayload = objectMapper.createObjectNode();
+                                            commandPayload.put("cmd", "getuserinfo");
+                                            commandPayload.put("enrollid", Integer.parseInt(userEnrollNumber));
+                                            commandPayload.put("backupnum", backupnum);
+                                            
+                                            DeviceCommand cmdObj = new DeviceCommand();
+                                            cmdObj.setDevice(device);
+                                            cmdObj.setCommandType("getuserinfo");
+                                            cmdObj.setCommandPayload(commandPayload.toString());
+                                            cmdObj.setStatus("PENDING");
+                                            deviceCommandRepository.save(cmdObj);
+                                            
+                                            // CRITICAL: Request backupnum=50 explicitly to force the device to return the user's name
+                                            // Ensure we only queue this ONCE per user per chunk
+                                            if (!requestedNameUsers.contains(userEnrollNumber)) {
+                                                requestedNameUsers.add(userEnrollNumber);
+                                                
+                                                ObjectNode nameCommandPayload = objectMapper.createObjectNode();
+                                                nameCommandPayload.put("cmd", "getuserinfo");
+                                                nameCommandPayload.put("enrollid", Integer.parseInt(userEnrollNumber));
+                                                nameCommandPayload.put("backupnum", 50);
+                                                
+                                                DeviceCommand nameCmdObj = new DeviceCommand();
+                                                nameCmdObj.setDevice(device);
+                                                nameCmdObj.setCommandType("getuserinfo");
+                                                nameCmdObj.setCommandPayload(nameCommandPayload.toString());
+                                                nameCmdObj.setStatus("PENDING");
+                                                deviceCommandRepository.save(nameCmdObj);
+                                            }
+                                        }
                                     }
+                                } catch (Exception e) {
+                                    logger.error("Error processing record in getuserlist", e);
                                 }
                             }
                         }
