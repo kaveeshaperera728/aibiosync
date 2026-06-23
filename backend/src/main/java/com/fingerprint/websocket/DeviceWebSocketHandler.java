@@ -234,15 +234,23 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                         for (JsonNode record : msgNode.get("record")) {
                             String userEnrollNumber = record.has("enrollid") ? record.get("enrollid").asText() : "";
                             int backupnum = record.has("backupnum") ? record.get("backupnum").asInt() : 0;
+                            String name = record.has("name") ? record.get("name").asText() : "";
                             
                             if (!userEnrollNumber.isEmpty()) {
-                                employeeRepository.findByEmployeeNumber(userEnrollNumber).orElseGet(() -> {
+                                Employee empToSave = employeeRepository.findByEmployeeNumber(userEnrollNumber).orElseGet(() -> {
                                     logger.info("Auto-registering employee from getuserlist: {}", userEnrollNumber);
                                     Employee newEmp = new Employee();
                                     newEmp.setEmployeeNumber(userEnrollNumber);
-                                    newEmp.setFirstName("User " + userEnrollNumber);
-                                    return employeeRepository.save(newEmp);
+                                    return newEmp;
                                 });
+                                
+                                if (!name.isEmpty()) {
+                                    empToSave.setFirstName(name);
+                                } else if (empToSave.getFirstName() == null || empToSave.getFirstName().isEmpty()) {
+                                    empToSave.setFirstName("User " + userEnrollNumber);
+                                }
+                                
+                                employeeRepository.save(empToSave);
                             }
                         }
                     }
