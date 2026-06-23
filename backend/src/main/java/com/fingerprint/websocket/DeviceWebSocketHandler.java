@@ -369,7 +369,15 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                                     emp.setFirstName(name);
                                 }
                                 
-                                // Update boolean flags
+                                // Extract comprehensive flags from backupnum=50 payload if available
+                                if (msgNode.has("faceflag") && msgNode.get("faceflag").asInt() == 1) {
+                                    emp.setHasFace(true);
+                                }
+                                if (msgNode.has("fpflag") && msgNode.get("fpflag").asInt() == 1) {
+                                    emp.setHasFingerprint(true);
+                                }
+                                
+                                // Also update flags based on backupNum in case the flags are missing
                                 if (backupNum >= 0 && backupNum <= 9) emp.setHasFingerprint(true);
                                 else if (backupNum == 10) emp.setHasPassword(true);
                                 else if (backupNum == 11) emp.setHasCard(true);
