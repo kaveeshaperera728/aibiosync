@@ -502,6 +502,32 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
         dispatchPendingCommands(session, sn);
     }
 
+    /**
+     * Directly sends a settime command to the device via its active WebSocket session.
+     * Bypasses the command queue completely for instant delivery.
+     */
+    public boolean sendTimeSyncToDevice(String sn) {
+        WebSocketSession session = activeSessions.get(sn);
+        if (session == null || !session.isOpen()) {
+            logger.warn("Cannot send time sync: Device {} has no active WebSocket session. Active sessions: {}", sn, activeSessions.keySet());
+            return false;
+        }
+        try {
+            String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            ObjectNode payload = new com.fasterxml.jackson.databind.ObjectMapper().createObjectNode();
+            payload.put("cmd", "settime");
+            payload.put("cloudtime", currentTime);
+            String msg = payload.toString();
+            logger.info("Sending direct settime to device {}: {}", sn, msg);
+            session.sendMessage(new org.springframework.web.socket.TextMessage(msg));
+            logger.info("Time sync sent successfully to device {}", sn);
+            return true;
+        } catch (Exception e) {
+            logger.error("Failed to send settime directly to device {}", sn, e);
+            return false;
+        }
+    }
+
     private void dispatchPendingCommands(WebSocketSession session, String sn) {
         List<DeviceCommand> pendingCmds = deviceCommandRepository.findByDeviceSerialNumberAndStatus(sn, "PENDING");
         int dispatchedCount = 0;

@@ -58,21 +58,12 @@ public class DeviceCommandService {
     }
 
     public void queueSyncTimeCommand(Long deviceId) {
-        Device device = deviceRepository.findById(deviceId).orElseThrow(() -> new RuntimeException("Device not found"));
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new RuntimeException("Device not found with id: " + deviceId));
 
-        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-        ObjectNode payload = objectMapper.createObjectNode();
-        payload.put("cmd", "settime");
-        payload.put("cloudtime", currentTime);
-
-        DeviceCommand cmd = new DeviceCommand();
-        cmd.setDevice(device);
-        cmd.setCommandType("settime");
-        cmd.setCommandPayload(payload.toString());
-        cmd.setStatus("PENDING");
-
-        deviceCommandRepository.save(cmd);
-        deviceWebSocketHandler.triggerCommandDispatch(device.getSerialNumber());
+        boolean sent = deviceWebSocketHandler.sendTimeSyncToDevice(device.getSerialNumber());
+        if (!sent) {
+            throw new RuntimeException("Device " + device.getName() + " is not currently connected. Cannot sync time.");
+        }
     }
 }

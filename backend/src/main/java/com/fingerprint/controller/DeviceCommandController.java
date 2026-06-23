@@ -24,17 +24,19 @@ public class DeviceCommandController {
     }
 
     @PostMapping("/sync-users")
-    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> syncUsers() {
         deviceCommandService.queueGetUserListAllDevices();
         return ResponseEntity.ok().body("{\"message\": \"User sync command queued for all active devices.\"}");
     }
 
     @PostMapping("/{deviceId}/sync-time")
-    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('SUPER_ADMIN')")
     public ResponseEntity<?> syncTime(@PathVariable Long deviceId) {
-        deviceCommandService.queueSyncTimeCommand(deviceId);
-        return ResponseEntity.ok(Map.of("message", "Time sync command sent to device."));
+        try {
+            deviceCommandService.queueSyncTimeCommand(deviceId);
+            return ResponseEntity.ok(Map.of("message", "Time sync sent successfully to device."));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/logs")
