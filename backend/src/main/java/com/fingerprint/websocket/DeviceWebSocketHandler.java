@@ -336,7 +336,19 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                         int backupNum = msgNode.has("backupnum") ? msgNode.get("backupnum").asInt() : 0;
                         String recordString = msgNode.has("record") ? msgNode.get("record").asText() : "";
                         
-                        logger.info("Processed getuserinfo response: enrollid={}, backupnum={}, hasRecord={}", enrollId, backupNum, !recordString.isEmpty());
+                        // Some firmwares embed the name inside the 'record' payload as a nested JSON string
+                        if (name.isEmpty() && !recordString.isEmpty()) {
+                            try {
+                                JsonNode nestedRecord = objectMapper.readTree(recordString);
+                                if (nestedRecord.has("name")) {
+                                    name = nestedRecord.get("name").asText();
+                                }
+                            } catch (Exception ignored) {
+                                // Not JSON, probably a raw base64 template
+                            }
+                        }
+                        
+                        logger.info("Processed getuserinfo response: enrollid={}, backupnum={}, name={}, hasRecord={}", enrollId, backupNum, name, !recordString.isEmpty());
                         
                         if (!enrollId.isEmpty()) {
                             java.util.Optional<Employee> optEmp = employeeRepository.findByEmployeeNumber(enrollId);
