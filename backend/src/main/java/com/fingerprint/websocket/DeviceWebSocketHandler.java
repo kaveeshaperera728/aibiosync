@@ -241,13 +241,15 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                 if ("getuserlist".equals(ret)) {
                     boolean result = msgNode.has("result") && msgNode.get("result").asBoolean();
                     if (result && msgNode.has("record") && msgNode.get("record").isArray()) {
-                        logger.info("Processing getuserlist response with {} records", msgNode.get("count").asInt());
+                        java.util.Set<String> deviceUserIds = new java.util.HashSet<>();
+                        
                         for (JsonNode record : msgNode.get("record")) {
                             String userEnrollNumber = record.has("enrollid") ? record.get("enrollid").asText() : "";
                             int backupnum = record.has("backupnum") ? record.get("backupnum").asInt() : 0;
                             String name = record.has("name") ? record.get("name").asText() : "";
                             
                             if (!userEnrollNumber.isEmpty()) {
+                                deviceUserIds.add(userEnrollNumber);
                                 Employee empToSave = employeeRepository.findByEmployeeNumber(userEnrollNumber).orElseGet(() -> {
                                     logger.info("Auto-registering employee from getuserlist: {}", userEnrollNumber);
                                     Employee newEmp = new Employee();
@@ -262,6 +264,25 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                                 }
                                 
                                 employeeRepository.save(empToSave);
+                            }
+                        }
+                        
+                        // Cleanup: If this response contains the full list of users, unlink any DB users that were deleted on the device
+                        int totalCount = msgNode.has("count") ? msgNode.get("count").asInt() : 0;
+                        if (msgNode.get("record").size() >= totalCount && sessionSn != null) {
+                            Device device = deviceRepository.findBySerialNumber(sessionSn).orElse(null);
+                            if (device != null) {
+                                List<Employee> linkedEmps = employeeRepository.findAll().stream()
+                                    .filter(e -> e.getRegisteredDevices().contains(device))
+                                    .collect(Collectors.toList());
+                                    
+                                for (Employee e : linkedEmps) {
+                                    if (!deviceUserIds.contains(e.getEmployeeNumber())) {
+                                        logger.info("Unlinking user {} as they were deleted from device {}", e.getEmployeeNumber(), sessionSn);
+                                        e.getRegisteredDevices().remove(device);
+                                        employeeRepository.save(e);
+                                    }
+                                }
                             }
                         }
                     }

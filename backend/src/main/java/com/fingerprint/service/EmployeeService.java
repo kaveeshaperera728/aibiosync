@@ -12,9 +12,15 @@ import java.util.stream.Collectors;
 public class EmployeeService {
 
     private final EmployeeRepository employeeRepository;
+    private final com.fingerprint.repository.DeviceCommandRepository deviceCommandRepository;
+    private final com.fingerprint.websocket.DeviceWebSocketHandler deviceWebSocketHandler;
 
-    public EmployeeService(EmployeeRepository employeeRepository) {
+    public EmployeeService(EmployeeRepository employeeRepository, 
+                           com.fingerprint.repository.DeviceCommandRepository deviceCommandRepository,
+                           com.fingerprint.websocket.DeviceWebSocketHandler deviceWebSocketHandler) {
         this.employeeRepository = employeeRepository;
+        this.deviceCommandRepository = deviceCommandRepository;
+        this.deviceWebSocketHandler = deviceWebSocketHandler;
     }
 
     public List<EmployeeDto> getAllEmployees() {
@@ -39,6 +45,30 @@ public class EmployeeService {
     }
 
     public void deleteEmployee(Long id) {
+        Employee employee = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Employee not found"));
+        
+        // Push deluser command to all registered devices before deleting from database
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        for (com.fingerprint.entity.Device device : employee.getRegisteredDevices()) {
+            try {
+                com.fasterxml.jackson.databind.node.ObjectNode payload = mapper.createObjectNode();
+                payload.put("cmd", "deluser");
+                payload.put("enrollid", Integer.parseInt(employee.getEmployeeNumber()));
+
+                com.fingerprint.entity.DeviceCommand cmd = new com.fingerprint.entity.DeviceCommand();
+                cmd.setDevice(device);
+                cmd.setCommandType("deluser");
+                cmd.setCommandPayload(payload.toString());
+                cmd.setStatus("PENDING");
+                deviceCommandRepository.save(cmd);
+
+                deviceWebSocketHandler.triggerCommandDispatch(device.getSerialNumber());
+            } catch (Exception e) {
+                // Log and continue if one device fails
+                System.err.println("Failed to queue deluser for device " + device.getSerialNumber());
+            }
+        }
+        
         employeeRepository.deleteById(id);
     }
 
