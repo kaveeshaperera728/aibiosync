@@ -107,7 +107,7 @@ public class DeviceService {
     public List<EmployeeDto> getMissingUsersForDevice(Long deviceId) {
         Device device = deviceRepository.findById(deviceId).orElseThrow(() -> new RuntimeException("Device not found"));
         return employeeRepository.findAll().stream()
-                .filter(emp -> !emp.getRegisteredDevices().contains(device))
+                .filter(emp -> emp.getRegisteredDevices().stream().noneMatch(d -> d.getId().equals(deviceId)))
                 .map(emp -> {
                     EmployeeDto dto = new EmployeeDto();
                     dto.setId(emp.getId());
