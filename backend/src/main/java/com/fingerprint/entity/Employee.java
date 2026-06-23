@@ -61,7 +61,7 @@ public class Employee extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @ManyToMany
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(
         name = "employee_devices",
         joinColumns = @JoinColumn(name = "employee_id"),
