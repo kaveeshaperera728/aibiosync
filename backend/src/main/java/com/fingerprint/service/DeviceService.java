@@ -97,7 +97,13 @@ public class DeviceService {
         }
         
         dto.setMacAddress(device.getMacAddress());
-        dto.setUserCount(device.getUserCount());
+        
+        // Dynamically calculate the accurate user count mapped to this device in the database
+        long actualMappedUsers = employeeRepository.findAll().stream()
+                .filter(emp -> emp.getRegisteredDevices().stream().anyMatch(d -> d.getId().equals(device.getId())))
+                .count();
+        dto.setUserCount((int) actualMappedUsers);
+        
         dto.setFingerprintCount(device.getFingerprintCount());
         dto.setFaceCount(device.getFaceCount());
         dto.setLogCount(device.getLogCount());
