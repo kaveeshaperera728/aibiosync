@@ -147,10 +147,6 @@ public class DeviceService {
     }
 
     private void queueSetUserInfoCommand(Device device, Employee emp, int backupNum, String record) {
-        // For backupnum=50 with a JPEG photo, ZKTeco devices often require a separate 'setuserpic' command 
-        // to actually process the image as a face template.
-        boolean isPhoto = backupNum == 50 && record != null && record.startsWith("/9j/");
-
         ObjectNode payload = objectMapper.createObjectNode();
         payload.put("cmd", "setuserinfo");
         payload.put("enrollid", Integer.parseInt(emp.getEmployeeNumber()));
@@ -158,14 +154,20 @@ public class DeviceService {
         payload.put("backupnum", backupNum);
         payload.put("admin", 0);
         
-        // Add flags if this is the main user record
+        // If this is the main user record (backupnum 50)
         if (backupNum == 50) {
             payload.put("faceflag", (emp.getHasFace() != null && emp.getHasFace()) ? 1 : 0);
             payload.put("fpflag", (emp.getHasFingerprint() != null && emp.getHasFingerprint()) ? 1 : 0);
+            payload.put("enable", 1);
+            
+            // If the record is a JPEG photo, we MUST include a photourl so the device knows how to parse it
+            if (record != null && record.startsWith("/9j/")) {
+                String paddedId = String.format("%08d", Integer.parseInt(emp.getEmployeeNumber()));
+                payload.put("photourl", "/photos/LF" + paddedId + ".jpg");
+            }
         }
         
-        // Only attach record to setuserinfo if it's NOT a photo (e.g., it's a fingerprint)
-        if (record != null && !record.isEmpty() && !isPhoto) {
+        if (record != null && !record.isEmpty()) {
             payload.put("record", record);
         }
 
@@ -175,20 +177,5 @@ public class DeviceService {
         cmd.setCommandPayload(payload.toString());
         cmd.setStatus("PENDING");
         deviceCommandRepository.save(cmd);
-
-        // If it's a photo, we MUST send a separate setuserpic command for the face to actually register
-        if (isPhoto) {
-            ObjectNode picPayload = objectMapper.createObjectNode();
-            picPayload.put("cmd", "setuserpic");
-            picPayload.put("enrollid", Integer.parseInt(emp.getEmployeeNumber()));
-            picPayload.put("record", record);
-
-            DeviceCommand picCmd = new DeviceCommand();
-            picCmd.setDevice(device);
-            picCmd.setCommandType("setuserpic");
-            picCmd.setCommandPayload(picPayload.toString());
-            picCmd.setStatus("PENDING");
-            deviceCommandRepository.save(picCmd);
-        }
     }
 }
