@@ -427,6 +427,15 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
+    public void triggerCommandDispatch(String sn) {
+        WebSocketSession session = activeSessions.get(sn);
+        if (session != null && session.isOpen()) {
+            dispatchPendingCommands(session, sn);
+        } else {
+            logger.warn("Cannot dispatch commands immediately: Device {} is not currently connected via WebSocket.", sn);
+        }
+    }
+
     private void dispatchPendingCommands(WebSocketSession session, String sn) {
         List<DeviceCommand> pendingCmds = deviceCommandRepository.findByDeviceSerialNumberAndStatus(sn, "PENDING");
         int dispatchedCount = 0;

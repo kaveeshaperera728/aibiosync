@@ -8,6 +8,7 @@ import com.fingerprint.repository.DeviceCommandRepository;
 import com.fingerprint.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
 
+import com.fingerprint.websocket.DeviceWebSocketHandler;
 import java.util.List;
 
 @Service
@@ -15,11 +16,15 @@ public class DeviceCommandService {
 
     private final DeviceCommandRepository deviceCommandRepository;
     private final DeviceRepository deviceRepository;
+    private final DeviceWebSocketHandler deviceWebSocketHandler;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public DeviceCommandService(DeviceCommandRepository deviceCommandRepository, DeviceRepository deviceRepository) {
+    public DeviceCommandService(DeviceCommandRepository deviceCommandRepository, 
+                                DeviceRepository deviceRepository,
+                                DeviceWebSocketHandler deviceWebSocketHandler) {
         this.deviceCommandRepository = deviceCommandRepository;
         this.deviceRepository = deviceRepository;
+        this.deviceWebSocketHandler = deviceWebSocketHandler;
     }
 
     public void queueGetUserList(Long deviceId) {
@@ -36,6 +41,9 @@ public class DeviceCommandService {
         cmd.setStatus("PENDING");
         
         deviceCommandRepository.save(cmd);
+        
+        // Push to device immediately if connected
+        deviceWebSocketHandler.triggerCommandDispatch(device.getSerialNumber());
     }
     
     public void queueGetUserListAllDevices() {
