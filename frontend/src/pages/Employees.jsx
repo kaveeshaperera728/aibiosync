@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Plus, MoreVertical, Search, Trash2, Edit2, Shield, RefreshCw, ChevronLeft, ChevronRight, Fingerprint, KeyRound, CreditCard, ScanFace, X } from 'lucide-react';
 import { getEmployees, syncUsersFromDevice } from '../services/api';
-import axios from 'axios'; // We will use this for the missing endpoints, or add them to api.js
+import api from '../services/api';
 
 export default function Employees() {
   const [employees, setEmployees] = useState([]);
@@ -50,12 +50,12 @@ export default function Employees() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
+    if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
-        await axios.delete(`http://localhost:8081/api/employees/${id}`);
+        await api.delete(`/employees/${id}`);
         loadEmployees();
       } catch (e) {
-        console.error("Failed to delete", e);
+        console.error('Failed to delete', e);
       }
     }
   };
@@ -63,14 +63,14 @@ export default function Employees() {
   const handleSave = async () => {
     try {
       if (editingEmp) {
-        await axios.put(`http://localhost:8081/api/employees/${editingEmp.id}`, formData);
+        await api.put(`/employees/${editingEmp.id}`, formData);
       } else {
-        await axios.post(`http://localhost:8081/api/employees`, formData);
+        await api.post('/employees', formData);
       }
       setShowModal(false);
       loadEmployees();
     } catch (e) {
-      console.error("Failed to save", e);
+      console.error('Failed to save', e);
     }
   };
 

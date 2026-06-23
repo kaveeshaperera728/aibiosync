@@ -474,11 +474,32 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
 
     public void triggerCommandDispatch(String sn) {
         WebSocketSession session = activeSessions.get(sn);
-        if (session != null && session.isOpen()) {
-            dispatchPendingCommands(session, sn);
-        } else {
-            logger.warn("Cannot dispatch commands immediately: Device {} is not currently connected via WebSocket.", sn);
+        if (session == null || !session.isOpen()) {
+            logger.warn("Cannot dispatch commands: Device {} is not currently connected via WebSocket.", sn);
+            return;
         }
+
+        // Priority: send any settime or high-priority commands IMMEDIATELY, bypassing the normal 5-cmd throttle
+        List<DeviceCommand> pendingCmds = deviceCommandRepository.findByDeviceSerialNumberAndStatus(sn, "PENDING");
+        for (DeviceCommand cmd : pendingCmds) {
+            if ("settime".equals(cmd.getCommandType())) {
+                try {
+                    logger.info("Sending PRIORITY settime command to device {}", sn);
+                    session.sendMessage(new TextMessage(cmd.getCommandPayload()));
+                    cmd.setStatus("SUCCESS"); // settime has no meaningful response to wait for
+                    deviceCommandRepository.save(cmd);
+                    logger.info("Time sync sent successfully to device {}", sn);
+                } catch (Exception e) {
+                    logger.error("Failed to send settime command to device {}", sn, e);
+                    cmd.setStatus("FAILED");
+                    deviceCommandRepository.save(cmd);
+                }
+                return; // Done — don't queue more commands alongside a time sync
+            }
+        }
+
+        // Normal throttled dispatch for other commands
+        dispatchPendingCommands(session, sn);
     }
 
     private void dispatchPendingCommands(WebSocketSession session, String sn) {

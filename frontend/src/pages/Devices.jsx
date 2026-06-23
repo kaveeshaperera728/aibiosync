@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Fingerprint, Plus, MoreVertical, Server, Trash2, Edit2, RefreshCw, Users, X, Send, Clock, CheckCheck } from 'lucide-react';
 import { getDevices, addDevice, deleteDevice, getMissingUsers, provisionUsers, syncDeviceTime } from '../services/api';
-import axios from 'axios';
+import api from '../services/api';
 
 export default function Devices() {
   const [devices, setDevices] = useState([]);
@@ -49,14 +49,14 @@ export default function Devices() {
   const handleSaveDevice = async () => {
     try {
       if (editingDevice) {
-        await axios.put(`http://localhost:8081/api/devices/${editingDevice.id}`, deviceForm);
+        await api.put(`/devices/${editingDevice.id}`, deviceForm);
       } else {
         await addDevice(deviceForm);
       }
       setShowDeviceModal(false);
       loadDevices();
     } catch (e) {
-      console.error("Failed to save device", e);
+      console.error('Failed to save device', e);
     }
   };
 
