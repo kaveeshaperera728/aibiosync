@@ -105,11 +105,12 @@ export default function Devices() {
   const handleSyncTime = async (dev) => {
     try {
       setSyncingTime(dev.id);
-      await syncDeviceTime(dev.id);
-      alert(`Time sync command sent to ${dev.name}. The device clock will update shortly.`);
+      const res = await syncDeviceTime(dev.id);
+      alert(`✅ ${res.data.message || 'Time sync sent successfully!'}`);
     } catch (e) {
-      console.error('Failed to sync time', e);
-      alert('Failed to send time sync. Is the device online?');
+      const errMsg = e.response?.data?.error || e.response?.data || e.message || 'Unknown error';
+      alert(`❌ Time sync failed: ${errMsg}`);
+      console.error('Time sync error:', e.response?.data || e);
     } finally {
       setSyncingTime(null);
     }

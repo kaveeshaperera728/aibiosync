@@ -10,6 +10,7 @@ services:
       MYSQL_ROOT_PASSWORD: strong_root_password
       MYSQL_USER: aibiosync_user
       MYSQL_PASSWORD: strong_password
+      TZ: Asia/Colombo
     ports:
       - "3306:3306"
     volumes:
@@ -29,6 +30,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/fingerprint_system?useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=aibiosync_user
       - SPRING_DATASOURCE_PASSWORD=strong_password
+      - TZ=Asia/Colombo
 
   frontend:
     build:
