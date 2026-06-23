@@ -406,9 +406,8 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
 
                                 employeeRepository.save(emp);
                                 
-                                // Save actual template string only if it's a valid biometric template (0-9 for fingers, 10-11 for card/pw, 20+ for face)
-                                // We specifically ignore backupNum 50 because it contains a massive Base64 JPEG photo that crashes the database TEXT column limit
-                                if (!recordString.isEmpty() && backupNum >= 0 && backupNum <= 27) {
+                                // Save actual template string only if it's a valid biometric template (0-9 for fingers, 10-11 for card/pw, 20-50 for face/user record)
+                                if (!recordString.isEmpty() && backupNum >= 0 && backupNum <= 50) {
                                     com.fingerprint.entity.BiometricTemplate template = biometricTemplateRepository.findByEmployeeAndBackupNum(emp, backupNum).orElse(new com.fingerprint.entity.BiometricTemplate());
                                     template.setEmployee(emp);
                                     template.setBackupNum(backupNum);

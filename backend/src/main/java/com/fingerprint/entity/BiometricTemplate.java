@@ -19,6 +19,6 @@ public class BiometricTemplate extends BaseEntity {
     private Integer backupNum;
 
     // Base64 encoded string from the device
-    @Column(name = "template_data", columnDefinition = "TEXT")
+    @Column(name = "template_data", columnDefinition = "LONGTEXT")
     private String templateData;
 }

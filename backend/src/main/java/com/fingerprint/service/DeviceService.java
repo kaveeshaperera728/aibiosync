@@ -125,11 +125,14 @@ public class DeviceService {
             Employee emp = employeeRepository.findById(empId).orElse(null);
             if (emp != null) {
                 List<BiometricTemplate> templates = biometricTemplateRepository.findByEmployee(emp);
-                if (templates.isEmpty()) {
-                    // Just push basic user info if no templates
-                    queueSetUserInfoCommand(device, emp, 0, "");
-                } else {
-                    for (BiometricTemplate template : templates) {
+                
+                // 1. ALWAYS push backupnum=50 first to create the user profile, name, and face photo (if exists)
+                BiometricTemplate faceTemplate = templates.stream().filter(t -> t.getBackupNum() == 50).findFirst().orElse(null);
+                queueSetUserInfoCommand(device, emp, 50, faceTemplate != null ? faceTemplate.getTemplateData() : "");
+
+                // 2. Push any other templates (e.g., fingerprints 0-9)
+                for (BiometricTemplate template : templates) {
+                    if (template.getBackupNum() != 50) {
                         queueSetUserInfoCommand(device, emp, template.getBackupNum(), template.getTemplateData());
                     }
                 }
@@ -150,6 +153,12 @@ public class DeviceService {
         payload.put("name", emp.getFirstName());
         payload.put("backupnum", backupNum);
         payload.put("admin", 0);
+        
+        // Add flags if this is the main user record
+        if (backupNum == 50) {
+            payload.put("faceflag", emp.isHasFace() ? 1 : 0);
+            payload.put("fpflag", emp.isHasFingerprint() ? 1 : 0);
+        }
         if (record != null && !record.isEmpty()) {
             payload.put("record", record);
         }
