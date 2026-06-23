@@ -156,8 +156,8 @@ public class DeviceService {
         
         // Add flags if this is the main user record
         if (backupNum == 50) {
-            payload.put("faceflag", emp.isHasFace() ? 1 : 0);
-            payload.put("fpflag", emp.isHasFingerprint() ? 1 : 0);
+            payload.put("faceflag", (emp.getHasFace() != null && emp.getHasFace()) ? 1 : 0);
+            payload.put("fpflag", (emp.getHasFingerprint() != null && emp.getHasFingerprint()) ? 1 : 0);
         }
         if (record != null && !record.isEmpty()) {
             payload.put("record", record);
