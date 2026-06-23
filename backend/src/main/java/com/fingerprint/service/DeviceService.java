@@ -162,8 +162,12 @@ public class DeviceService {
             
             // If the record is a JPEG photo, we MUST include a photourl so the device knows how to parse it
             if (record != null && record.startsWith("/9j/")) {
-                String paddedId = String.format("%08d", Integer.parseInt(emp.getEmployeeNumber()));
-                payload.put("photourl", "/photos/LF" + paddedId + ".jpg");
+                if (emp.getPhotoUrl() != null && !emp.getPhotoUrl().isEmpty()) {
+                    payload.put("photourl", emp.getPhotoUrl());
+                } else {
+                    String paddedId = String.format("%08d", Integer.parseInt(emp.getEmployeeNumber()));
+                    payload.put("photourl", "/photos/LF" + paddedId + ".jpg");
+                }
             }
         }
         

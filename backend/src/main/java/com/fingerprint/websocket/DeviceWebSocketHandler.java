@@ -396,6 +396,13 @@ public class DeviceWebSocketHandler extends TextWebSocketHandler {
                                 else if (backupNum == 11) emp.setHasCard(true);
                                 else if (backupNum >= 20 && backupNum <= 27) emp.setHasFace(true);
 
+                                if (msgNode.has("photourl")) {
+                                    String photoUrl = msgNode.get("photourl").asText();
+                                    if (!photoUrl.isEmpty()) {
+                                        emp.setPhotoUrl(photoUrl);
+                                    }
+                                }
+
                                 // Link device
                                 if (sessionSn != null) {
                                     Device sessionDev = deviceRepository.findBySerialNumber(sessionSn).orElse(null);
